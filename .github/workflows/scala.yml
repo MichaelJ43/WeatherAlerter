@@ -1,0 +1,47 @@
+name: Scala CI Build
+
+on:
+  push:
+    branches: [ "main", "master" ] # Adjust if your primary branch has a different name
+  pull_request:
+    branches: [ "main", "master" ] # Adjust if your primary branch has a different name
+
+permissions:
+  contents: read # Allow checkout of the repository
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11' # Or '8', '17', or your project's specific JDK requirement
+          distribution: 'temurin' # Popular, well-supported distribution
+          cache: 'sbt' # Essential for caching sbt and its dependencies (Ivy/Coursier)
+
+      - name: Run sbt tests
+        run: sbt test
+
+      - name: Compile application (Optional)
+        # This step is somewhat redundant if `sbt test` passes, as tests require compilation.
+        # However, it can be useful for explicitly verifying compilation or if you have
+        # compile-time only tasks.
+        run: sbt compile
+
+      # - name: Package application (Optional)
+      #   # Uncomment this section if you want to build a JAR file as part of your CI process.
+      #   # This is useful for creating distributable artifacts.
+      #   run: sbt package
+
+      # - name: Upload JAR artifact (Optional)
+      #   # If you package the application, you might want to upload the JAR.
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: weather-alerter-app-jar
+      #     path: target/scala-*/weatheralerterapp_*.jar # Adjust path if your artifact name/location differs
